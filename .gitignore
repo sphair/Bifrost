@@ -11,7 +11,7 @@ lastbuild.txt
 version.txt
 *.version
 _ReSharper.*
-packages
+Source/**/packages
 *.pidb
 *.userprefs
 *.pdb
