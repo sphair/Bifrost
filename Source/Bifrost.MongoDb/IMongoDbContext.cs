@@ -19,20 +19,16 @@
 // limitations under the License.
 //
 #endregion
-using Bifrost.Entities;
 using MongoDB.Driver;
 
 namespace Bifrost.MongoDb
 {
-    public class EntityContextConnection : IEntityContextConnection
+    public interface IMongoDbContext
     {
-        public string ConnectionString { get; private set; }
-        public string DatabaseName { get; private set; }
+        MongoDatabase Database { get; }
+        MongoServer Server { get; }
 
-        public EntityContextConnection(string connectionString, string databaseName)
-        {
-            ConnectionString = connectionString;
-            DatabaseName = databaseName;
-        }
+        void CreateCollectionIfNotExistFor<T>();
+        MongoCollection<T> GetCollectionFor<T>();
     }
 }

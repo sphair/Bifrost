@@ -21,24 +21,29 @@
 #endregion
 using System.Linq;
 using Bifrost.Entities;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace Bifrost.MongoDB
+namespace Bifrost.MongoDb
 {
     public class EntityContext<T> : IEntityContext<T>
     {
         EntityContextConnection _connection;
-        string _collectionName;
         MongoCollection<T> _collection;
+        IMongoDbContext _mongoDbContext;
+        IBsonClassMapManager _bsonClassMapManager;
+        BsonClassMap<T> _classMap;
 
-        public EntityContext(EntityContextConnection connection)
+        public EntityContext(EntityContextConnection connection, IMongoDbContext mongoDbContext, IBsonClassMapManager bsonClassMapManager)
         {
             _connection = connection;
-            _collectionName = typeof(T).Name;
-            if( !_connection.Database.CollectionExists(_collectionName) )
-                _connection.Database.CreateCollection(_collectionName);
+            _mongoDbContext = mongoDbContext;
+            _bsonClassMapManager = bsonClassMapManager;
+            _classMap = _bsonClassMapManager.GetFor<T>();
 
-            _collection = _connection.Database.GetCollection<T>(_collectionName);
+            mongoDbContext.CreateCollectionIfNotExistFor<T>();
+            _collection = mongoDbContext.GetCollectionFor<T>();
         }
 
 
@@ -63,6 +68,10 @@ namespace Bifrost.MongoDB
 
         public void Delete(T entity)
         {
+            var id = _classMap.IdMemberMap.Getter(entity);
+            var bsonId = BsonValue.Create(id);
+            var query = new QueryDocument(_classMap.IdMemberMap.ElementName, bsonId);
+            _collection.Remove(query);
         }
 
         public void Save(T entity)

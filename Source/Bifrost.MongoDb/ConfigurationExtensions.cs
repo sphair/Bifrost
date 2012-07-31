@@ -20,7 +20,7 @@
 //
 #endregion
 using Bifrost.Entities;
-using Bifrost.MongoDB;
+using Bifrost.MongoDb;
 
 namespace Bifrost.Configuration
 {

@@ -23,7 +23,7 @@ using System;
 using Bifrost.Configuration;
 using Bifrost.Entities;
 
-namespace Bifrost.MongoDB
+namespace Bifrost.MongoDb
 {
     public class EntityContextConfiguration : IEntityContextConfiguration
     {

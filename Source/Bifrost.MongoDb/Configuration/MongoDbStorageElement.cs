@@ -22,7 +22,7 @@
 
 using Bifrost.Configuration;
 using Bifrost.Configuration.Xml;
-using Bifrost.MongoDB;
+using Bifrost.MongoDb;
 
 namespace Bifrost.MongoDb
 {
