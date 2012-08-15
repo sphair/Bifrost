@@ -29,10 +29,36 @@ namespace Bifrost.MongoDb
         public string ConnectionString { get; private set; }
         public string DatabaseName { get; private set; }
 
+        public MongoServer Server { get; private set; }
+        public MongoDatabase Database { get; private set; }
+
         public EntityContextConnection(string connectionString, string databaseName)
         {
             ConnectionString = connectionString;
             DatabaseName = databaseName;
+
+            Server = MongoServer.Create(connectionString);
+            Database = Server.GetDatabase(databaseName);
         }
+
+        public void CreateCollectionIfNotExistFor<T>()
+        {
+            var collectionName = GetCollectionNameFor<T>();
+            if (!Database.CollectionExists(collectionName))
+                Database.CreateCollection(collectionName);
+        }
+
+        public MongoCollection<T> GetCollectionFor<T>()
+        {
+            var collectionName = GetCollectionNameFor<T>();
+            return Database.GetCollection<T>(collectionName);
+        }
+
+        static string GetCollectionNameFor<T>()
+        {
+            var collectionName = typeof(T).Name;
+            return collectionName;
+        }
+
     }
 }

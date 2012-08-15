@@ -31,20 +31,18 @@ namespace Bifrost.MongoDb
     {
         EntityContextConnection _connection;
         MongoCollection<T> _collection;
-        IMongoDbContext _mongoDbContext;
         IBsonClassMapManager _bsonClassMapManager;
         BsonClassMap<T> _classMap;
 
-        public EntityContext(EntityContextConnection connection, IMongoDbContext mongoDbContext, IBsonClassMapManager bsonClassMapManager)
+        public EntityContext(EntityContextConnection connection, IBsonClassMapManager bsonClassMapManager)
         {
             _connection = connection;
-            _mongoDbContext = mongoDbContext;
             _bsonClassMapManager = bsonClassMapManager;
-            _classMap = _bsonClassMapManager.GetFor<T>();
 
-            mongoDbContext.CreateCollectionIfNotExistFor<T>();
-            _collection = mongoDbContext.GetCollectionFor<T>();
+            connection.CreateCollectionIfNotExistFor<T>();
+            _collection = connection.GetCollectionFor<T>();
         }
+
 
 
         public IQueryable<T> Entities
@@ -68,7 +66,7 @@ namespace Bifrost.MongoDb
 
         public void Delete(T entity)
         {
-            var id = _classMap.IdMemberMap.Getter(entity);
+            var id = ClassMap.IdMemberMap.Getter(entity);
             var bsonId = BsonValue.Create(id);
             var query = new QueryDocument(_classMap.IdMemberMap.ElementName, bsonId);
             _collection.Remove(query);
@@ -85,6 +83,18 @@ namespace Bifrost.MongoDb
 
         public void Dispose()
         {
+        }
+
+
+        BsonClassMap<T> ClassMap
+        {
+            get
+            {
+                if (_classMap == null)
+                    _classMap = _bsonClassMapManager.GetFor<T>();
+
+                return _classMap;
+            }
         }
     }
 }
